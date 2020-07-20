@@ -1,0 +1,4 @@
+nodes:
+  - address: zatsu-k8s1
+    user: rancher
+    role: [controlplane, worker, etcd]

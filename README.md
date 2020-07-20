@@ -27,6 +27,7 @@ SSH で対象サーバにログインして下記を実行すると rke で 1 �
 ```yaml
 $ ssh root@x.x.x.x
 
+# cd ~/
 # wget https://github.com/rancher/rke/releases/download/v1.1.4/rke_linux-amd64
 # mv rke_linux-amd64 rke
 # chmod +x rke
@@ -50,9 +51,9 @@ network:
 
 kubectl を準備して使い始めます。
 
-```yaml
-# mkdir .kube
-# cp kube_config_cluster.yml .kube/config
+```bash
+# mkdir ~/.kube
+# cp kube_config_cluster.yml ~/.kube/config
 
 # curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 # chmod +x kubectl
