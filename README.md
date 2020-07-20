@@ -27,10 +27,10 @@ all:
 これで ansible 実行すると、とりあえず k8s を立てる準備ができます。
 
 ```bash
-# ansible-playbook -i inventory.yml prepare_node.yml --ask-pass
+# ansible-playbook -i inventory.yml playbook/prepare_node.yml --ask-pass
 再起動がかかる
 
-# ansible-playbook -i inventory.yml install_docker.yml --ask-pass
+# ansible-playbook -i inventory.yml playbook/install_docker.yml --ask-pass
 ```
 
 SSH で対象サーバにログインして下記を実行すると rke で 1 台構成の Kubernetes が構築されます。

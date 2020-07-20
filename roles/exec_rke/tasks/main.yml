@@ -1,0 +1,18 @@
+---
+# Install rke
+- name: install rke
+  get_url:
+    url: https://github.com/rancher/rke/releases/download/v1.1.4/rke_linux-amd64
+    dest: /usr/local/bin/rke
+    mode: "0755"
+
+- name: prepare_cluster info
+  copy:
+    src: cluster.yml
+    dest: /root/cluster.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: exec rke
+  shell: rke up
