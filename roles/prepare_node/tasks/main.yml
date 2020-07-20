@@ -56,7 +56,7 @@
 - name: comment out fstab for swap
   replace:
     path: /etc/fstab
-    regexp: '^(.+?\sswap\s+sw\s+.*)$'
+    regexp: "^(.*)swap(.*)$"
     replace: '# \1'
 
 - name: restart machine
