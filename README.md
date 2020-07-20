@@ -36,18 +36,13 @@ all:
 下記の Playbook を実行すると rke で 1 台構成の Kubernetes が構築されます。
 
 ```bash
-# ansible-playbook -i inventory.yml playbook/install_docker.yml --ask-pass
+# ansible-playbook -i inventory.yml playbook/exec_rke.yml --ask-pass
 ```
 
 kubectl を準備して使い始めます。
 
 ```bash
-# mkdir ~/.kube
-# cp kube_config_cluster.yml ~/.kube/config
-
-# curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-# chmod +x kubectl
-# mv ./kubectl /usr/local/bin/
+# ansible-playbook -i inventory.yml playbook/install_kubectl.yml --ask-pass
 
 # kubectl get node
 NAME         STATUS   ROLES                      AGE     VERSION
