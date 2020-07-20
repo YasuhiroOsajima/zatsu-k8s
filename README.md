@@ -33,31 +33,10 @@ all:
 # ansible-playbook -i inventory.yml playbook/install_docker.yml --ask-pass
 ```
 
-SSH で対象サーバにログインして下記を実行すると rke で 1 台構成の Kubernetes が構築されます。
+下記の Playbook を実行すると rke で 1 台構成の Kubernetes が構築されます。
 
-```yaml
-$ ssh root@x.x.x.x
-
-# cd ~/
-# wget https://github.com/rancher/rke/releases/download/v1.1.4/rke_linux-amd64
-# mv rke_linux-amd64 rke
-# chmod +x rke
-# mv ./rke /usr/local/bin/
-# vim cluster.yml
-nodes:
-  - address: zatsu-k8s1
-    user: rancher
-    role: [controlplane, worker, etcd]
-
-dns:
-  provider: coredns
-  upstreamnameservers:
-  - 8.8.8.8
-
-network:
-    plugin: calico
-
-# rke up
+```bash
+# ansible-playbook -i inventory.yml playbook/install_docker.yml --ask-pass
 ```
 
 kubectl を準備して使い始めます。
