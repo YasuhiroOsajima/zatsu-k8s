@@ -1,0 +1,161 @@
+---
+# OS settings
+- name: yum update
+  yum:
+    name: "*"
+    state: latest
+  register: result
+
+- set_fact:
+    should_reboot: true
+  when: result.changed == true
+
+- name: set /etc/hostname
+  template:
+    src: ./hostname.j2
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: 0644
+  register: result
+
+- set_fact:
+    should_reboot: true
+  when: result.changed == true
+
+- name: set /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: present
+    regexp: "^127.0.0.1.*"
+    line: "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 {{ inventory_hostname_short }}"
+
+- name: disable NetworkManager
+  systemd:
+    name: NetworkManager
+    state: stopped
+    enabled: no
+
+- name: disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
+- name: set net.bridge.bridge-nf-call-iptables
+  sysctl:
+    name: "net.bridge.bridge-nf-call-iptables"
+    value: "1"
+    state: present
+    ignoreerrors: yes
+    reload: yes
+
+- name: swapoff
+  command: swapoff -a
+
+- name: comment out fstab for swap
+  replace:
+    path: /etc/fstab
+    regexp: '^(.+?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: restart machine
+  shell: sleep 2 && shutdown -r now
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: should_reboot == true
+
+- name: wait for reboot
+  wait_for_connection:
+    delay: 10
+    timeout: 300
+  when: should_reboot == true
+
+# Install docker
+- name: install docker
+  shell: curl https://releases.rancher.com/install-docker/19.03.sh | sh
+
+- name: enable docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+# Users settings
+- name: create rancher group
+  group:
+    name: rancher
+    state: present
+
+- name: create rancher user
+  user:
+    name: rancher
+    group: rancher
+    groups: docker
+
+- name: visudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^rancher.*"
+    line: "rancher  ALL=(ALL)  NOPASSWD: ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: generate ssh key
+  local_action:
+    module: openssh_keypair
+    path: ./generated_files/id_rsa
+    size: 2048
+
+- name: generate ssh authorized_keys
+  local_action:
+    module: shell cat ./generated_files/id_rsa.pub > ./generated_files/authorized_keys
+
+- name: mkdir root .ssh
+  file:
+    dest: /root/.ssh/
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: scp root ssh file
+  copy:
+    src: ./generated_files/id_rsa
+    dest: /root/.ssh/id_rsa
+    owner: root
+    group: root
+    mode: 0600
+
+- name: scp root ssh authorized_keys
+  copy:
+    src: ./generated_files/authorized_keys
+    dest: /root/.ssh/authorized_keys
+    owner: root
+    group: root
+    mode: 0600
+
+- name: mkdir rancher .ssh
+  file:
+    dest: /home/rancher/.ssh/
+    state: directory
+    owner: rancher
+    group: rancher
+    mode: 0700
+
+- name: scp rancher ssh file
+  copy:
+    src: ./generated_files/id_rsa
+    dest: /home/rancher/.ssh/id_rsa
+    owner: rancher
+    group: rancher
+    mode: 0600
+
+- name: scp rancher ssh authorized_keys
+  copy:
+    src: ./generated_files/authorized_keys
+    dest: /home/rancher/.ssh/authorized_keys
+    owner: rancher
+    group: rancher
+    mode: 0600

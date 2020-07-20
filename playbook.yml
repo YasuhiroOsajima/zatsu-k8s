@@ -1,0 +1,7 @@
+---
+- name: build node
+  hosts: all
+  become: "yes"
+  gather_facts: false
+  roles:
+    - prepare_node
