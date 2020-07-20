@@ -14,5 +14,8 @@
     group: root
     mode: "0644"
 
+# Setup Kubernetes
 - name: exec rke
   shell: rke up
+  args:
+    chdir: /root/

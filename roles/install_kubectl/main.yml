@@ -1,0 +1,21 @@
+---
+# Install kubectl
+- name: create kube directory
+  file:
+    path: /root/.kube
+    state: directory
+    mode: "0755"
+
+- name: set kube config
+  shell: cp /root/kube_config_cluster.yml /root/.kube/config
+
+- name: get kubectl version
+  command: curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
+  register: stable_version
+  check_mode: no
+
+- name: install kubectl
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/release/{{ stable_version.stdout }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: "0755"
